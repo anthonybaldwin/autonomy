@@ -1,0 +1,267 @@
+version: 1
+
+roster_policy:
+  owner_agent_is_role: true
+  runtime_names_are_not_roles:
+    - codex
+    - claude
+    - claude-code
+    - gemini
+    - gemini-cli
+    - worker
+    - verifier
+  instructions:
+    - Queue items must use one of the role ids below as owner_agent.
+    - Codex, Claude, Gemini, and other tools are runtimes that may execute any role.
+    - Do not enqueue runtime names unless this roster explicitly defines them as role ids.
+    - When a role does not fit, add or edit a role before enqueueing work.
+
+supervisor:
+  id: supervisor
+  mission: Select bounded work, choose the next roster role, and enforce queue gates.
+  reads:
+    - AGENTS.md
+    - applicable runtime overlay such as CLAUDE.md or GEMINI.md
+    - agents/roster.yaml
+    - agents/queue-policy.md
+    - agents/queue-state.json
+    - latest agents/handoffs/*.md
+  required_outputs:
+    - selected_role
+    - task_scope
+    - acceptance_criteria
+    - validation_commands
+    - next_queue_update
+
+roles:
+  - id: project-bootstrap
+    title: Project Bootstrap
+    mission: Install the kit, create the first queue, and align repo-level agent instructions.
+    owns:
+      - AGENTS.md
+      - CLAUDE.md
+      - GEMINI.md
+      - .claude/commands/
+      - .gemini/commands/
+      - package scripts
+      - initial queue seed
+      - setup docs
+    avoid:
+      - product feature implementation after bootstrap
+      - long-running autonomy loops without explicit user request
+    default_checks:
+      - bun run autonomy:check
+    handoff_focus:
+      - installed files
+      - setup gaps
+      - first recommended owner_agent
+
+  - id: planning-roadmap
+    title: Planning and Roadmap
+    mission: Turn product direction, audits, and handoffs into a small ordered backlog.
+    owns:
+      - plans
+      - roadmap docs
+      - milestone sequencing
+      - acceptance criteria
+    avoid:
+      - code changes outside docs/plans
+      - vague multi-day queue items
+    default_checks:
+      - manual consistency check against current queue and latest handoff
+    handoff_focus:
+      - current phase
+      - next bounded items
+      - deferred risks
+
+  - id: architecture-governance
+    title: Architecture and Governance
+    mission: Keep boundaries, contracts, and structural decisions coherent.
+    owns:
+      - architecture docs
+      - ADRs
+      - shared contracts
+      - repo governance
+    avoid:
+      - speculative abstractions
+      - feature implementation without tests
+    default_checks:
+      - project-specific lint/typecheck/test commands
+    handoff_focus:
+      - boundary decisions
+      - contract changes
+      - follow-up owners
+
+  - id: backend-api
+    title: Backend API
+    mission: Implement server-side routes, handlers, services, and API contracts.
+    owns:
+      - backend HTTP/API code
+      - request and response shapes
+      - server middleware
+      - service orchestration
+    avoid:
+      - frontend UI work
+      - persistence schema changes without persistence owner alignment
+      - auth/security boundary changes without security-review follow-up
+    default_checks:
+      - backend package tests
+      - backend build or typecheck
+    handoff_focus:
+      - API behavior
+      - compatibility notes
+      - validation coverage
+
+  - id: frontend-ui
+    title: Frontend UI
+    mission: Build user-facing screens, components, client state, and accessibility behavior.
+    owns:
+      - frontend components
+      - browser interaction flows
+      - client API usage
+      - accessibility checks
+    avoid:
+      - backend behavior changes beyond typed client updates
+      - broad redesigns during narrow feature work
+    default_checks:
+      - frontend lint
+      - frontend typecheck
+      - focused UI tests
+    handoff_focus:
+      - changed views
+      - interaction states
+      - browser/test coverage
+
+  - id: persistence-data
+    title: Persistence and Data
+    mission: Own schemas, migrations, storage adapters, and replay/resume data contracts.
+    owns:
+      - database migrations
+      - repository/store layers
+      - data model changes
+      - replay/resume invariants
+    avoid:
+      - UI changes
+      - silent schema compatibility breaks
+    default_checks:
+      - migration validation
+      - storage package tests
+    handoff_focus:
+      - migration order
+      - rollback risk
+      - data compatibility
+
+  - id: integrations-adapters
+    title: Integrations and Adapters
+    mission: Implement provider, SDK, protocol, or external-service adapters behind local contracts.
+    owns:
+      - adapter packages
+      - protocol clients
+      - provider capability mapping
+      - external SDK boundaries
+    avoid:
+      - leaking provider-specific behavior into generic layers
+      - adding live-service dependencies without approval
+    default_checks:
+      - adapter contract tests
+      - focused integration tests when available
+    handoff_focus:
+      - provider assumptions
+      - fallback behavior
+      - version/API constraints
+
+  - id: testing-qa
+    title: Testing and QA
+    mission: Add or repair the nearest useful tests and validate acceptance criteria.
+    owns:
+      - unit tests
+      - integration tests
+      - contract tests
+      - smoke/e2e checks
+    avoid:
+      - large feature implementation
+      - deleting tests to get green
+    default_checks:
+      - focused failing test first
+      - full relevant suite before handoff
+    handoff_focus:
+      - coverage added
+      - validation commands
+      - residual test gaps
+
+  - id: security-review
+    title: Security Review
+    mission: Review trust boundaries, secret handling, auth flows, dependency risk, and abuse cases.
+    owns:
+      - threat-model deltas
+      - secret-handling review
+      - authz/authn review
+      - dependency/license risk
+    avoid:
+      - broad implementation unless fixing a narrow confirmed issue
+      - approving risky behavior without explicit tradeoff notes
+    default_checks:
+      - security-focused review of changed files
+      - dependency/license checks when relevant
+    handoff_focus:
+      - findings
+      - mitigations
+      - required follow-ups
+
+  - id: devex-ci-release
+    title: DevEx, CI, and Release
+    mission: Keep local setup, automation, CI, packaging, and release flow reliable.
+    owns:
+      - package scripts
+      - CI workflows
+      - build/release scripts
+      - local developer setup
+    avoid:
+      - feature logic changes hidden inside tooling work
+      - destructive release steps without approval
+    default_checks:
+      - install/check commands
+      - CI-equivalent local commands
+    handoff_focus:
+      - setup changes
+      - CI/release impact
+      - commands users should run
+
+  - id: performance-slo
+    title: Performance and SLOs
+    mission: Define, measure, and protect latency, throughput, and resource budgets.
+    owns:
+      - benchmarks
+      - performance instrumentation
+      - SLO docs
+      - regression gates
+    avoid:
+      - premature optimization without measurement
+      - unrelated feature changes
+    default_checks:
+      - focused benchmark or perf test
+      - before/after measurement when practical
+    handoff_focus:
+      - budget affected
+      - measured result
+      - remaining risk
+
+  - id: docs-release-ops
+    title: Docs and Release Ops
+    mission: Keep user docs, runbooks, changelogs, and release notes aligned with shipped behavior.
+    owns:
+      - README files
+      - docs
+      - runbooks
+      - changelogs
+      - release notes
+    avoid:
+      - code behavior changes except tiny doc-generation fixes
+      - stale future-tense claims for shipped behavior
+    default_checks:
+      - link/path spot checks
+      - docs/code consistency check
+    handoff_focus:
+      - docs updated
+      - known stale docs
+      - next release/doc owner

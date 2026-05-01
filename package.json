@@ -1,11 +1,13 @@
 {
   "name": "autonomy",
   "private": true,
+  "packageManager": "bun@1.3.13",
   "scripts": {
     "autonomy:stop": "bun scripts/autonomy-state.ts stop",
     "autonomy:stop:clear": "bun scripts/autonomy-state.ts stop --clear",
     "autonomy:resume": "bun scripts/autonomy-state.ts resume",
     "autonomy:check": "bun scripts/autonomy-state.ts check",
+    "autonomy:doctor": "bun scripts/autonomy-state.ts doctor",
     "autonomy:enqueue": "bun scripts/autonomy-state.ts enqueue",
     "autonomy:activate": "bun scripts/autonomy-state.ts activate",
     "autonomy:complete": "bun scripts/autonomy-state.ts complete"

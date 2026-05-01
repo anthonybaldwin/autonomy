@@ -1,161 +1,213 @@
 # autonomy
 
-A tiny, tool-agnostic queue + handoff kit for letting AI coding agents (Claude Code, Codex, anything else with shell access) run bounded tasks back-to-back without stomping each other.
+A small, tool-agnostic queue and handoff kit for AI coding agents. It lets
+Claude Code, Gemini CLI, Codex, or another shell-capable runtime work through
+bounded queue items without treating runtime names as project roles.
 
-The whole system is ~200 lines of TypeScript, a JSON file, and a few markdown contracts. No daemon, no service, no SDK — just files an agent reads and scripts it runs.
+The kit is just files:
 
----
+- `AGENTS.md` for the universal runtime contract.
+- `agents/roster.yaml` for project role ownership.
+- `agents/queue-state.json` for local runtime queue state.
+- `scripts/autonomy-state.ts` for queue commands.
+- Optional Claude and Gemini slash-command adapters.
+
+No daemon, service, or SDK is required.
 
 ## Why
 
-You want an agent to keep working while you're away, but:
-- A single 10-hour task is brittle, expensive, and impossible to review.
-- Two agents running at once will overwrite each other's work.
-- Without a paper trail, the next agent (or the next *you*) has no idea what just happened.
+You want an agent to keep moving through work, but:
+
+- A single huge task is brittle and hard to review.
+- Parallel agents can overwrite each other's work.
+- Without handoffs, the next agent has no useful state.
+- Runtime labels like `codex` or `claude` are too vague to own real work.
 
 This kit gives you:
-- **Bounded tasks**: each "run" is one queue item with explicit scope.
-- **Single-active mutex**: only one item is `active` at a time. Claiming work fails if someone's already in.
-- **Handoff notes**: every completed run leaves a markdown note for the next agent.
-- **Kill switch**: one command pauses the whole loop; agents check the flag before claiming work.
 
----
+- Bounded tasks: one queue item per run.
+- Single-active mutex: only one item can be active at a time.
+- Handoff notes: every completed run leaves context for the next run.
+- Kill switch: agents check the stop flag before claiming work.
+- Role validation: queue owners must come from `agents/roster.yaml`.
 
 ## Install
 
-Drop the `scripts/` and `agents/` folders into any repo. Add the `autonomy:*` scripts from `package.json`. Done.
+Drop these files into any repo:
 
-Requires [Bun](https://bun.com) (1.x). No other dependencies.
+1. `AGENTS.md`
+2. `agents/`
+3. `scripts/`
+4. The `autonomy:*` scripts from `package.json`
+5. Optional for Claude Code: `CLAUDE.md` and `.claude/commands/`
+6. Optional for Gemini CLI: `GEMINI.md` and `.gemini/commands/`
 
----
+If the target repo already has agent instruction files, merge the guidance
+instead of replacing project-specific rules.
+
+Requires [Bun](https://bun.com) 1.x. No other dependencies are required.
+
+Do not copy or commit `agents/queue-state.json`; it is runtime state and is
+gitignored. The first state-changing queue command creates it from
+`agents/queue-state.example.json`.
+
+## First Setup
+
+1. Read `AGENTS.md`.
+2. Edit `agents/roster.yaml` so its role ids match the target project.
+3. Merge `CLAUDE.md` or `GEMINI.md` only when that runtime is used.
+4. Keep `.claude/commands/` only for Claude Code and `.gemini/commands/` only
+   for Gemini CLI.
+5. Run `bun run autonomy:check` to confirm the queue is runnable.
+
+`bun run autonomy:doctor` is for troubleshooting a broken or suspicious setup.
+It is not the first setup step.
 
 ## Quickstart
 
 ```bash
-# 1. seed an item
 bun run autonomy:enqueue \
   --id task-001 \
-  --agent backend \
+  --agent backend-api \
   --priority normal \
   --description "Refactor the auth middleware"
 
-# 2. before each turn, check the kill switch
 bun run autonomy:check
-# exits 0 if runnable, 1 if paused/stopped
-
-# 3. claim the next item (moves it from items[] → active)
 bun run autonomy:activate
 
-# 4. ... agent does the work, writes code, runs tests ...
+# Agent does the bounded active work, validates it, and writes a handoff.
 
-# 5. mark it done (moves active → completed[])
 bun run autonomy:complete
-
-# 6. write a handoff note
-#    agents/handoffs/YYYYMMDD-HHMMSS-<agent>.md
-#    (template in agents/handoffs/README.md)
-
-# 7. enqueue follow-up if needed, then loop back to step 2
 ```
 
-The state lives in `agents/queue-state.json` (gitignored).
+`--agent` means roster role id. Use values from `agents/roster.yaml`, such as
+`backend-api`, `frontend-ui`, or `testing-qa`.
 
----
+Do not use runtime names like `codex`, `claude`, `claude-code`, `gemini`,
+`gemini-cli`, `worker`, or `verifier` unless the roster explicitly defines them
+as roles.
 
-## The agent loop
+## Agent Loop
 
-```
-┌─────────────────────────────────────────────────────┐
-│  autonomy:check  →  autonomy:activate  →  do work   │
-│       ▲                                       │     │
-│       │              autonomy:enqueue ────────┤     │
-│       │                                       │     │
-│       └─────────────  handoff note  ←  autonomy:complete
-└─────────────────────────────────────────────────────┘
-```
+Any runtime with shell and filesystem access can drive the loop:
 
-Any agent that can run shell commands and write files can drive this loop. The contract is:
+1. Read `AGENTS.md`.
+2. Read the applicable overlay, such as `CLAUDE.md` or `GEMINI.md`.
+3. Read `agents/roster.yaml`.
+4. Read `agents/queue-policy.md`.
+5. Read the latest handoff in `agents/handoffs/`, when present.
+6. Run `bun run autonomy:check`.
+7. Run `bun run autonomy:activate`.
+8. Execute the active item's bounded scope.
+9. Validate touched files.
+10. Write a handoff note.
+11. Run `bun run autonomy:complete`.
 
-1. Read `agents/queue-policy.md` for queue semantics.
-2. Read the latest file in `agents/handoffs/` to pick up context.
-3. Run the loop above.
-4. Respect the stop flag (`autonomy:check` returning non-zero) before claiming.
+Do not keep looping unless the user explicitly asked for a longer autonomy run.
 
----
+## Queue Model
 
-## Queue model
-
-Each item in `agents/queue-state.json`:
+Each item in `agents/queue-state.json` has:
 
 | Field | Values | Notes |
 |---|---|---|
-| `id` | string | Stable identifier you choose |
-| `priority` | `high` / `normal` / `low` | High preempts normal/low (unless current step is atomic) |
-| `execution_policy` | `run-now` / `run-after-current-step` / `run-next-turn` | When the supervisor should pick it up |
-| `owner_agent` | string | Free-form role label — see `agents/roster.yaml.example` |
-| `status` | `pending` / `running` / `blocked` / `done` / `failed` / `cancelled` | |
-| `requires_approval` | bool | If true, item stays `blocked` until you flip it |
+| `id` | string | Stable identifier you choose. |
+| `priority` | `high`, `normal`, `low` | High preempts normal and low before activation. |
+| `execution_policy` | `run-now`, `run-after-current-step`, `run-next-turn` | Scheduling hint. |
+| `owner_agent` | string | Role id from `agents/roster.yaml`. |
+| `status` | `pending`, `running`, `blocked`, `done`, `failed`, `cancelled` | Queue state. |
+| `requires_approval` | bool | If true, item remains blocked until approved. |
 
-Single-active invariant: `autonomy:activate` refuses if `active` is non-null. `autonomy:complete` refuses if `active` is null. This is the mutex.
+`autonomy:activate` refuses to claim work if another item is already active.
+`autonomy:complete` refuses to complete when no item is active.
+`autonomy:enqueue` validates `owner_agent` against the tracked roster.
 
----
+## Roles Vs Runtimes
 
-## Stop / resume
+The roster does not install agents. It defines project roles.
+
+| Term | Example | Meaning |
+|---|---|---|
+| Role | `backend-api`, `testing-qa`, `docs-release-ops` | The ownership lane selected for a queue item. |
+| Runtime | Codex, Claude Code, Gemini CLI | The tool executing the selected role. |
+
+Handoffs must record both:
+
+```md
+Role: backend-api
+Runtime: Codex
+Queue item: task-001
+Status: done
+```
+
+## Slash Commands
+
+Slash commands are adapters for repeated prompts. They are not the source of
+truth, and they do not install separate agents.
+
+| Runtime | Project command support | Included files |
+|---|---|---|
+| Claude Code | Yes, Markdown commands in `.claude/commands/*.md`. | `/bootstrap`, `/next-agent`, `/stop-autonomy` |
+| Gemini CLI | Yes, TOML commands in `.gemini/commands/*.toml`. | `/bootstrap`, `/next-agent`, `/stop-autonomy` |
+| Codex | No project command files in this template. | Use `AGENTS.md`, normal prompts, and `bun run autonomy:*`. |
+
+Codex has built-in slash commands for its own session controls, but this
+template does not add repo-local Codex command files.
+
+## Stop And Resume
 
 ```bash
-bun run autonomy:stop          # pause; next check exits non-zero
-bun run autonomy:stop:clear    # pause + clear pending items + clear active
+bun run autonomy:stop          # pause future claims
+bun run autonomy:stop:clear    # pause and clear pending/active runtime state
 bun run autonomy:resume        # unpause
 bun run autonomy:check         # exit 0 if runnable, 1 if stopped
 ```
 
-Agents must `autonomy:check` before claiming work, so a stop takes effect at the next turn boundary. No mid-task interruption.
+The file-based stop only affects the next claim boundary. For immediate
+interruption, use the current runtime's own cancel or interrupt control.
 
----
+## File Map
 
-## File map
+```text
+AGENTS.md                 universal runtime contract
+CLAUDE.md                 Claude Code overlay
+GEMINI.md                 Gemini CLI overlay
+package.json              autonomy:* script aliases
 
-```
-.claude/commands/         # Optional Claude Code slash commands
-  bootstrap.md            #   /bootstrap — seed queue from a plan
-  next-agent.md           #   /next-agent — supervisor turn
-  stop-autonomy.md        #   /stop-autonomy — kill switch
+.claude/commands/         optional Claude Code project slash commands
+  bootstrap.md
+  next-agent.md
+  stop-autonomy.md
+
+.gemini/commands/         optional Gemini CLI project custom commands
+  bootstrap.toml
+  next-agent.toml
+  stop-autonomy.toml
 
 agents/
-  README.md               # Folder overview
-  queue-policy.md         # Queue semantics + stop behavior
-  queue-state.example.json  # Seed for fresh installs
-  roster.yaml.example     # Agent role catalog (copy → roster.yaml, customize)
+  README.md
+  roster.yaml             tracked role catalog
+  queue-policy.md
+  queue-state.example.json
   handoffs/
-    README.md             # Handoff note contract + naming
+    README.md
   prompts/
-    supervisor.md         # What a supervisor agent should output
-    worker-template.md    # What a worker agent should output
-    verifier.md           # Optional verifier role contract
+    supervisor.md
+    worker-template.md
+    verifier.md
 
 scripts/
-  autonomy-state.ts       # The whole system (~180 lines)
-
-package.json              # autonomy:* script aliases
+  autonomy-state.ts
 ```
 
----
+## Runtime Notes
 
-## Notes on agent runtimes
+- Claude Code: `CLAUDE.md` is an overlay only. Commands in
+  `.claude/commands/*.md` must still read `AGENTS.md` first.
+- Gemini CLI: `GEMINI.md` is an overlay only. Commands in
+  `.gemini/commands/*.toml` must still read `AGENTS.md` first. Run
+  `/commands reload` after editing command files.
+- Codex: `AGENTS.md` is the durable project instruction file. Use normal prompts
+  or direct `bun run autonomy:*` commands for this kit.
 
-- **Claude Code**: the `.claude/commands/*.md` files are picked up as slash commands (`/next-agent`, `/stop-autonomy`, `/bootstrap`). Optional — you can also call `bun run autonomy:*` directly.
-- **Codex**: doesn't have project-scoped slash commands. Just call `bun run autonomy:*` from your prompt or wrap it in your own automation.
-- **Anything else**: the contract is shell + filesystem. No SDK required.
-
-The `owner_agent` field is a free-form string. Validation happens at the social layer (your roster doc), not in code — pick a convention that makes sense for your project.
-
----
-
-## Customizing for your project
-
-Before first use:
-1. `cp agents/roster.yaml.example agents/roster.yaml` and edit to match your project's actual agent roles.
-2. Skim `agents/queue-policy.md` and `agents/handoffs/README.md` — these are the contracts every agent reads.
-3. Optionally edit `.claude/commands/bootstrap.md` to point at your project's plan/roadmap doc.
-
-That's it. Start enqueueing.
+Start by editing the roster, then enqueue one bounded item.

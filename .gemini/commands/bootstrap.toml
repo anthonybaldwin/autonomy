@@ -1,0 +1,27 @@
+description = "Seed the autonomy queue from a project plan using roster role ids."
+
+prompt = """
+You are running the project /bootstrap command in Gemini CLI.
+
+Hard requirement: read AGENTS.md first. If you have not read it in this
+session, stop and read it before taking any action.
+
+Then read GEMINI.md, agents/roster.yaml, agents/queue-policy.md, and
+agents/handoffs/README.md.
+
+Task:
+1. Locate the project plan or roadmap, such as PLAN.md, ROADMAP.md, .plans/, or
+   a milestone section in README.md. If none exists, ask before inventing one.
+2. Identify the current phase and one or two next bounded tasks.
+3. Choose --agent values only from agents/roster.yaml role ids.
+4. Enqueue items with bun run autonomy:enqueue --id <id> --agent <role-id>
+   --priority <high|normal|low> --description "<desc>".
+5. Do not use runtime names such as gemini, gemini-cli, claude, claude-code,
+   codex, worker, or verifier unless the roster explicitly defines them as
+   roles.
+6. Do not mark tasks done without verification.
+7. If queue or roster setup behaves unexpectedly, run bun run autonomy:doctor
+   and report the findings.
+
+User arguments: {{args}}
+"""
