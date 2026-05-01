@@ -46,7 +46,8 @@ Drop these files into any repo:
 If the target repo already has agent instruction files, merge the guidance
 instead of replacing project-specific rules.
 
-Requires [Bun](https://bun.com) 1.x. No other dependencies are required.
+Requires [Bun](https://bun.com) 1.1 or newer. No other dependencies are
+required.
 
 Do not copy or commit `agents/queue-state.json`; it is runtime state and is
 gitignored. The first state-changing queue command creates it from
