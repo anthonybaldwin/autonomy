@@ -1,0 +1,13 @@
+{
+  "name": "autonomy",
+  "private": true,
+  "scripts": {
+    "autonomy:stop": "bun scripts/autonomy-state.ts stop",
+    "autonomy:stop:clear": "bun scripts/autonomy-state.ts stop --clear",
+    "autonomy:resume": "bun scripts/autonomy-state.ts resume",
+    "autonomy:check": "bun scripts/autonomy-state.ts check",
+    "autonomy:enqueue": "bun scripts/autonomy-state.ts enqueue",
+    "autonomy:activate": "bun scripts/autonomy-state.ts activate",
+    "autonomy:complete": "bun scripts/autonomy-state.ts complete"
+  }
+}

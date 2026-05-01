@@ -1,0 +1,61 @@
+version: 1
+supervisor:
+  id: supervisor
+  role: Select next work item, assign owner agent, enforce gates.
+  required_outputs:
+    - queue_update
+    - selected_agent
+    - stop_or_continue
+agents:
+  - id: architecture-governance
+    area: contracts-policy
+    deliverables:
+      - ADRs
+      - repo governance docs
+      - decision records
+  - id: acp-protocol-runtime
+    area: transport-lifecycle
+    deliverables:
+      - ACP transport modules
+      - session lifecycle wiring
+      - protocol tests
+  - id: provider-adapters
+    area: adapters
+    deliverables:
+      - Claude ACP adapter first
+      - additional adapter stubs
+  - id: web-ux-layout
+    area: frontend
+    deliverables:
+      - layout contract implementation
+      - steer/queue UI
+      - accessibility checks
+  - id: persistence-replay
+    area: persistence
+    deliverables:
+      - event store
+      - projections
+      - replay/resume logic
+  - id: testing-qa
+    area: quality
+    deliverables:
+      - contract tests
+      - integration tests
+      - e2e/failure tests
+  - id: performance-slo
+    area: performance
+    deliverables:
+      - SLO instrumentation
+      - benchmark harnesses
+      - regression gating
+  - id: windows-build-release
+    area: platform-release
+    deliverables:
+      - Windows packaging
+      - cross-platform CI matrix
+  - id: docs-release-ops
+    area: docs-ops
+    deliverables:
+      - wiki/runbooks
+      - release notes
+      - license notices

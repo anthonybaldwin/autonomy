@@ -1,0 +1,5 @@
+agents/queue-state.json
+agents/handoffs/*
+!agents/handoffs/README.md
+node_modules
+.DS_Store
