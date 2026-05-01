@@ -24,8 +24,8 @@ Before claiming queued work:
 3. Read `agents/roster.yaml`.
 4. Read `agents/queue-policy.md`.
 5. Read the latest handoff note in `agents/handoffs/`, when present.
-6. Run `bun run autonomy:check`.
-7. Run `bun run autonomy:activate`.
+6. Run `bun autonomy:check`.
+7. Run `bun autonomy:activate`.
 8. Read the active item in `agents/queue-state.json`.
 9. Execute the active item's roster role and bounded scope.
 
@@ -64,15 +64,15 @@ Every handoff must record both:
 
 ## Queue Rules
 
-1. Run `bun run autonomy:check` before claiming work.
-2. Run `bun run autonomy:activate` to claim one queued item.
+1. Run `bun autonomy:check` before claiming work.
+2. Run `bun autonomy:activate` to claim one queued item.
 3. Do only the active item's bounded scope.
 4. Validate touched files with the narrowest useful checks.
-5. Run `bun run autonomy:complete` only after the task is genuinely done.
+5. Run `bun autonomy:complete` only after the task is genuinely done.
 6. Write a handoff note using `agents/handoffs/README.md`.
 7. Enqueue follow-up work only with an `owner_role` from `agents/roster.yaml`.
 
-Use `bun run autonomy:doctor` only when the queue, roster, or install appears
+Use `bun autonomy:doctor` only when the queue, roster, or install appears
 broken.
 
 ## Supervisor Rules

@@ -58,7 +58,7 @@ Use when the user asks to bootstrap, seed, or initialize autonomy work.
 4. Enqueue items with:
 
    ```bash
-   bun run autonomy:enqueue --id <id> --role <role-id> --priority <high|normal|low> --description "<desc>"
+   bun autonomy:enqueue --id <id> --role <role-id> --priority <high|normal|low> --description "<desc>"
    ```
 
 5. Stop after seeding unless the user explicitly asks you to continue.
@@ -67,13 +67,13 @@ Use when the user asks to bootstrap, seed, or initialize autonomy work.
 
 Use when the user asks to continue, run the next item, or pick up queued work.
 
-1. Run `bun run autonomy:check`.
-2. Run `bun run autonomy:activate`.
+1. Run `bun autonomy:check`.
+2. Run `bun autonomy:activate`.
 3. Execute only the active item's bounded scope.
 4. Treat `owner_role` as the roster role for this run.
 5. Run the narrowest useful validation commands for touched files.
 6. Write a handoff note using `agents/handoffs/README.md`.
-7. Run `bun run autonomy:complete` only after the work is genuinely done.
+7. Run `bun autonomy:complete` only after the work is genuinely done.
 8. Enqueue at most one or two concrete follow-ups, and only with roster role ids.
 9. Stop after this one queue item unless the user explicitly asked for a longer
    loop.
@@ -82,13 +82,13 @@ Use when the user asks to continue, run the next item, or pick up queued work.
 
 Use when the user asks to stop, pause, halt, or clear autonomy work.
 
-1. Run `bun run autonomy:stop`.
+1. Run `bun autonomy:stop`.
 2. If the user explicitly asks to clear pending and active runtime state, run
-   `bun run autonomy:stop:clear` instead.
+   `bun autonomy:stop:clear` instead.
 3. Explain that the file-based queue stops the next claim. For immediate
    interruption, use the current runtime's own cancel or interrupt control.
 4. Preserve handoff state for deterministic resume.
-5. Emit the resume command: `bun run autonomy:resume`.
+5. Emit the resume command: `bun autonomy:resume`.
 
 ## Doctor
 
@@ -98,7 +98,7 @@ scripts, or provider-skill wiring appears broken.
 Run:
 
 ```bash
-bun run autonomy:doctor
+bun autonomy:doctor
 ```
 
 Report errors first, then warnings, then the narrowest fix.

@@ -59,26 +59,26 @@ gitignored. The first state-changing queue command creates it from
 2. Edit `agents/roster.yaml` so its role ids match the target project.
 3. Merge `CLAUDE.md` only when Claude Code is used.
 4. Keep `.claude/skills/` and `.claude/commands/` only for Claude Code.
-5. Run `bun run autonomy:check` to confirm the queue is runnable.
+5. Run `bun autonomy:check` to confirm the queue is runnable.
 
-`bun run autonomy:doctor` is for troubleshooting a broken or suspicious setup.
+`bun autonomy:doctor` is for troubleshooting a broken or suspicious setup.
 It is not the first setup step.
 
 ## Quickstart
 
 ```bash
-bun run autonomy:enqueue \
+bun autonomy:enqueue \
   --id task-001 \
   --role backend-api \
   --priority normal \
   --description "Refactor the auth middleware"
 
-bun run autonomy:check
-bun run autonomy:activate
+bun autonomy:check
+bun autonomy:activate
 
 # Agent does the bounded active work, validates it, and writes a handoff.
 
-bun run autonomy:complete
+bun autonomy:complete
 ```
 
 `--role` means roster role id. Use values from `agents/roster.yaml`, such as
@@ -100,12 +100,12 @@ Any runtime with shell and filesystem access can drive the loop:
 3. Read `agents/roster.yaml`.
 4. Read `agents/queue-policy.md`.
 5. Read the latest handoff in `agents/handoffs/`, when present.
-6. Run `bun run autonomy:check`.
-7. Run `bun run autonomy:activate`.
+6. Run `bun autonomy:check`.
+7. Run `bun autonomy:activate`.
 8. Execute the active item's bounded scope.
 9. Validate touched files.
 10. Write a handoff note.
-11. Run `bun run autonomy:complete`.
+11. Run `bun autonomy:complete`.
 
 Do not keep looping unless the user explicitly asked for a longer autonomy run.
 
@@ -194,10 +194,10 @@ ship an MCP server.
 ## Stop And Resume
 
 ```bash
-bun run autonomy:stop          # pause future claims
-bun run autonomy:stop:clear    # pause and clear pending/active runtime state
-bun run autonomy:resume        # unpause
-bun run autonomy:check         # exit 0 if runnable, 1 if stopped
+bun autonomy:stop          # pause future claims
+bun autonomy:stop:clear    # pause and clear pending/active runtime state
+bun autonomy:resume        # unpause
+bun autonomy:check         # exit 0 if runnable, 1 if stopped
 ```
 
 The file-based stop only affects the next claim boundary. For immediate

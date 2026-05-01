@@ -22,7 +22,7 @@
 3. Common invalid owners include `codex`, `claude`, `claude-code`, `gemini`, `gemini-cli`, `worker`, and `verifier`.
 4. Supervisors must choose the next `owner_role` from `agents/roster.yaml`.
 5. Workers must execute the active item's roster role and include both `Role` and `Runtime` in the handoff.
-6. If queue or roster state looks inconsistent, run `bun run autonomy:doctor` and fix the reported issue.
+6. If queue or roster state looks inconsistent, run `bun autonomy:doctor` and fix the reported issue.
 
 Legacy state files may contain `owner_agent`; read it as an alias for
 `owner_role`, but write `owner_role` for new queue items.

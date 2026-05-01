@@ -52,7 +52,7 @@ roles:
       - product feature implementation after bootstrap
       - long-running autonomy loops without explicit user request
     default_checks:
-      - bun run autonomy:check
+      - bun autonomy:check
     handoff_focus:
       - installed files
       - setup gaps

@@ -5,13 +5,14 @@
     "bun": ">=1.1.0"
   },
   "scripts": {
-    "autonomy:stop": "bun scripts/autonomy-state.ts stop",
-    "autonomy:stop:clear": "bun scripts/autonomy-state.ts stop --clear",
-    "autonomy:resume": "bun scripts/autonomy-state.ts resume",
-    "autonomy:check": "bun scripts/autonomy-state.ts check",
-    "autonomy:doctor": "bun scripts/autonomy-state.ts doctor",
-    "autonomy:enqueue": "bun scripts/autonomy-state.ts enqueue",
-    "autonomy:activate": "bun scripts/autonomy-state.ts activate",
-    "autonomy:complete": "bun scripts/autonomy-state.ts complete"
+    "autonomy": "bun scripts/autonomy-state.ts",
+    "autonomy:stop": "bun autonomy -- stop",
+    "autonomy:stop:clear": "bun autonomy -- stop --clear",
+    "autonomy:resume": "bun autonomy -- resume",
+    "autonomy:check": "bun autonomy -- check",
+    "autonomy:doctor": "bun autonomy -- doctor",
+    "autonomy:enqueue": "bun autonomy -- enqueue",
+    "autonomy:activate": "bun autonomy -- activate",
+    "autonomy:complete": "bun autonomy -- complete"
   }
 }

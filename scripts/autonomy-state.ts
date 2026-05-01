@@ -34,8 +34,9 @@ const mode = modeArg as Mode;
 
 if (!MODES.includes(mode)) {
   console.error(
-    "Usage: bun scripts/autonomy-state.ts <stop|resume|check|doctor|enqueue|activate|complete> [options]",
+    "Usage: bun autonomy -- <stop|resume|check|doctor|enqueue|activate|complete> [options]",
   );
+  console.error("Direct: bun scripts/autonomy-state.ts <mode> [options]");
   console.error("  stop [--clear]        Pause scheduler (optionally clear queue)");
   console.error("  resume                Unpause scheduler");
   console.error("  check                 Print current state and exit 0 if runnable, 1 if stopped");
@@ -292,12 +293,14 @@ switch (mode) {
       };
       const scripts = packageJson.scripts ?? {};
       for (const scriptName of [
+        "autonomy",
         "autonomy:check",
         "autonomy:doctor",
         "autonomy:enqueue",
         "autonomy:activate",
         "autonomy:complete",
         "autonomy:stop",
+        "autonomy:stop:clear",
         "autonomy:resume",
       ]) {
         if (scripts[scriptName]) {
@@ -308,7 +311,7 @@ switch (mode) {
         }
       }
     } else {
-      printDoctorResult("warn", "missing package.json; bun run autonomy:* aliases are unavailable");
+      printDoctorResult("warn", "missing package.json; bun autonomy:* aliases are unavailable");
       warnings += 1;
     }
 
