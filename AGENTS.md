@@ -30,24 +30,33 @@ Before claiming queued work:
 8. Read the active item in `agents/queue-state.json`.
 9. Execute the active item's roster role and bounded scope.
 
-If the active item has an unknown `owner_agent`, stop and ask the user to fix
+If the active item has an unknown `owner_role`, stop and ask the user to fix
 the roster or queue. Do not silently reinterpret it as the current runtime.
 
-## Role And Runtime Rule
+## Roster Roles Vs Runtime Tools
 
 `agents/roster.yaml` is the tracked role catalog for the project. It is not a
 runtime registry and it does not install separate Claude, Codex, Gemini, worker,
 or verifier agents.
 
-`owner_agent` must be a roster role id, such as `backend-api`, `frontend-ui`, or
+`owner_role` must be a roster role id, such as `backend-api`, `frontend-ui`, or
 `testing-qa`.
 
 The runtime is the tool executing that role: Codex, Claude Code, Gemini CLI, or
-another shell-capable agent. Runtime names are not valid `owner_agent` values
+another shell-capable agent. Runtime names are not valid `owner_role` values
 unless the local roster explicitly defines them as roles.
 
 Common invalid owners are `codex`, `claude`, `claude-code`, `gemini`,
 `gemini-cli`, `worker`, and `verifier`.
+
+Legacy note: older queue files may contain `owner_agent`. Treat that as an alias
+for `owner_role` when reading old state, but write `owner_role` for all new
+items.
+
+The roster entries are the role definitions. There are no required matching
+files such as `agents/roles/backend-api.md`, and the roster does not install
+subagents. A runtime should read the matching roster entry and execute the task
+while wearing that role.
 
 Every handoff must record both:
 
@@ -63,7 +72,7 @@ Every handoff must record both:
 4. Validate touched files with the narrowest useful checks.
 5. Run `bun run autonomy:complete` only after the task is genuinely done.
 6. Write a handoff note using `agents/handoffs/README.md`.
-7. Enqueue follow-up work only with an `owner_agent` from `agents/roster.yaml`.
+7. Enqueue follow-up work only with an `owner_role` from `agents/roster.yaml`.
 
 Use `bun run autonomy:doctor` only when the queue, roster, or install appears
 broken.
@@ -72,7 +81,7 @@ broken.
 
 When selecting or enqueueing work:
 
-1. Choose `owner_agent` from `agents/roster.yaml`.
+1. Choose `owner_role` from `agents/roster.yaml`.
 2. If no role fits, update the roster first or ask the user for a role decision.
 3. Keep tasks small enough for one reviewable run.
 4. Put acceptance criteria and validation commands into the task description or
@@ -84,7 +93,7 @@ When selecting or enqueueing work:
 
 When executing work:
 
-1. Treat the active item's `owner_agent` as your role for this run.
+1. Treat the active item's `owner_role` as your role for this run.
 2. Use that roster entry's ownership and avoid lists to keep scope bounded.
 3. Prefer project-local instructions over generic assumptions.
 4. Leave unrelated files alone.

@@ -29,7 +29,7 @@ This kit gives you:
 - Single-active mutex: only one item can be active at a time.
 - Handoff notes: every completed run leaves context for the next run.
 - Kill switch: agents check the stop flag before claiming work.
-- Role validation: queue owners must come from `agents/roster.yaml`.
+- Role validation: queue `owner_role` values must come from `agents/roster.yaml`.
 
 ## Install
 
@@ -68,7 +68,7 @@ It is not the first setup step.
 ```bash
 bun run autonomy:enqueue \
   --id task-001 \
-  --agent backend-api \
+  --role backend-api \
   --priority normal \
   --description "Refactor the auth middleware"
 
@@ -80,8 +80,11 @@ bun run autonomy:activate
 bun run autonomy:complete
 ```
 
-`--agent` means roster role id. Use values from `agents/roster.yaml`, such as
+`--role` means roster role id. Use values from `agents/roster.yaml`, such as
 `backend-api`, `frontend-ui`, or `testing-qa`.
+
+`--agent` is accepted only as a legacy alias for older queues and scripts. New
+docs and queue state should use `owner_role` / `--role`.
 
 Do not use runtime names like `codex`, `claude`, `claude-code`, `gemini`,
 `gemini-cli`, `worker`, or `verifier` unless the roster explicitly defines them
@@ -114,13 +117,16 @@ Each item in `agents/queue-state.json` has:
 | `id` | string | Stable identifier you choose. |
 | `priority` | `high`, `normal`, `low` | High preempts normal and low before activation. |
 | `execution_policy` | `run-now`, `run-after-current-step`, `run-next-turn` | Scheduling hint. |
-| `owner_agent` | string | Role id from `agents/roster.yaml`. |
+| `owner_role` | string | Role id from `agents/roster.yaml`. |
 | `status` | `pending`, `running`, `blocked`, `done`, `failed`, `cancelled` | Queue state. |
 | `requires_approval` | bool | If true, item remains blocked until approved. |
 
 `autonomy:activate` refuses to claim work if another item is already active.
 `autonomy:complete` refuses to complete when no item is active.
-`autonomy:enqueue` validates `owner_agent` against the tracked roster.
+`autonomy:enqueue` validates `owner_role` against the tracked roster.
+
+Legacy queue files may still contain `owner_agent`. The script can read that
+field, but it writes `owner_role` for new items.
 
 ## Roles Vs Runtimes
 
@@ -130,6 +136,13 @@ The roster does not install agents. It defines project roles.
 |---|---|---|
 | Role | `backend-api`, `testing-qa`, `docs-release-ops` | The ownership lane selected for a queue item. |
 | Runtime | Codex, Claude Code, Gemini CLI | The tool executing the selected role. |
+
+There do not need to be matching files such as `agents/roles/backend-api.md`.
+`agents/roster.yaml` is the definition source unless a project deliberately adds
+extra role files and references them from the roster.
+
+The queue field is named `owner_role` for this reason. It means "which roster
+role owns this task," not "which AI CLI should run this task."
 
 Handoffs must record both:
 

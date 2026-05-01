@@ -3,12 +3,12 @@
 Write one handoff file per completed agent run.
 
 ## File naming
-- `YYYYMMDD-HHMMSS-<agent-id>.md`
-- Use the roster role id for `<agent-id>`, not the runtime name.
+- `YYYYMMDD-HHMMSS-<role-id>.md`
+- Use the roster role id for `<role-id>`, not the runtime name.
 
 ## Required sections
 1. Header metadata:
-   - `Role`: the active queue item's roster `owner_agent`.
+   - `Role`: the active queue item's roster `owner_role`.
    - `Runtime`: the tool that executed the work, such as Codex, Claude Code, or Gemini CLI.
    - `Queue item`: active item id.
    - `Status`: `done`, `failed`, `blocked`, or `cancelled`.

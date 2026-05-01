@@ -15,7 +15,7 @@ Rules:
 3. Run required validation checks for touched files.
 4. Produce a handoff note using template.
 5. Include both `Role` and `Runtime` in the handoff.
-6. Stop and ask if `owner_agent` is not found in `agents/roster.yaml`.
+6. Stop and ask if `owner_role` is not found in `agents/roster.yaml`.
 
 Output:
 1. Summary of changes.

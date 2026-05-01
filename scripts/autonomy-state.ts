@@ -8,7 +8,8 @@ type QueueItem = {
   id: string;
   priority: "high" | "normal" | "low";
   execution_policy: "run-now" | "run-after-current-step" | "run-next-turn";
-  owner_agent: string;
+  owner_role?: string;
+  owner_agent?: string;
   status: "pending" | "running" | "blocked" | "done" | "failed" | "cancelled";
   requires_approval: boolean;
   description?: string;
@@ -40,8 +41,9 @@ if (!MODES.includes(mode)) {
   console.error("  check                 Print current state and exit 0 if runnable, 1 if stopped");
   console.error("  doctor                Diagnose queue setup, roster, and ignored runtime files");
   console.error(
-    "  enqueue               Add item: --id --agent --priority --policy [--description]",
+    "  enqueue               Add item: --id --role --priority --policy [--description]",
   );
+  console.error("                        Legacy alias: --agent is accepted as --role");
   console.error("  activate              Move highest-priority pending item to active");
   console.error("  complete [--status]   Mark active item done/failed (default: done)");
   process.exit(1);
@@ -116,22 +118,26 @@ function loadRosterIds(): string[] | null {
   return [...new Set(ids)];
 }
 
-function validateOwnerAgent(agent: string): string | null {
+function getOwnerRole(item: QueueItem): string | undefined {
+  return item.owner_role ?? item.owner_agent;
+}
+
+function validateOwnerRole(role: string): string | null {
   const rosterIds = loadRosterIds();
   if (!rosterIds) {
-    return "Missing agents/roster.yaml; owner_agent cannot be validated";
+    return "Missing agents/roster.yaml; owner_role cannot be validated";
   }
   if (rosterIds.length === 0) {
     return "No role ids found in agents/roster.yaml";
   }
-  if (rosterIds.includes(agent)) {
+  if (rosterIds.includes(role)) {
     return null;
   }
 
-  const hint = runtimeNames.has(agent)
+  const hint = runtimeNames.has(role)
     ? " Codex/Claude/Gemini/worker/verifier are runtimes, not owner roles, unless the roster explicitly defines them."
     : "";
-  return `Unknown owner_agent "${agent}". Use one of: ${rosterIds.join(", ")}.${hint}`;
+  return `Unknown owner_role "${role}". Use one of: ${rosterIds.join(", ")}.${hint}`;
 }
 
 function allQueueItems(): QueueItem[] {
@@ -207,18 +213,39 @@ switch (mode) {
       printDoctorResult("ok", "agents/queue-state.json is absent; first state-changing command will create it");
     }
 
+    const missingOwnerRoles = allQueueItems().filter((item) => !getOwnerRole(item));
+    if (missingOwnerRoles.length > 0) {
+      printDoctorResult(
+        "error",
+        `queue contains items without owner_role: ${missingOwnerRoles.map((item) => item.id).join(", ")}`,
+      );
+      errors += 1;
+    }
+
+    const legacyOwnerAgents = allQueueItems().filter(
+      (item) => item.owner_agent && !item.owner_role,
+    );
+    if (legacyOwnerAgents.length > 0) {
+      printDoctorResult(
+        "warn",
+        `queue uses legacy owner_agent on: ${legacyOwnerAgents.map((item) => item.id).join(", ")}`,
+      );
+      warnings += 1;
+    }
+
     const invalidOwners = allQueueItems()
-      .map((item) => item.owner_agent)
-      .filter((agent, index, agents) => agents.indexOf(agent) === index)
-      .filter((agent) => validateOwnerAgent(agent) !== null);
+      .map((item) => getOwnerRole(item))
+      .filter((role): role is string => Boolean(role))
+      .filter((role, index, roles) => roles.indexOf(role) === index)
+      .filter((role) => validateOwnerRole(role) !== null);
     if (invalidOwners.length > 0) {
       printDoctorResult(
         "error",
-        `queue contains owner_agent values not present in roster: ${invalidOwners.join(", ")}`,
+        `queue contains owner_role values not present in roster: ${invalidOwners.join(", ")}`,
       );
       errors += 1;
-    } else {
-      printDoctorResult("ok", "all queue owner_agent values match roster roles");
+    } else if (missingOwnerRoles.length === 0) {
+      printDoctorResult("ok", "all queue owner_role values match roster roles");
     }
 
     if (existsSync(gitignorePath)) {
@@ -273,12 +300,12 @@ switch (mode) {
 
   case "enqueue": {
     const id = getArg("id");
-    const agent = getArg("agent");
+    const role = getArg("role") ?? getArg("agent");
     const priority = (getArg("priority") ?? "normal") as QueueItem["priority"];
     const policy = (getArg("policy") ?? "run-next-turn") as QueueItem["execution_policy"];
     const description = getArg("description");
-    if (!id || !agent) {
-      console.error("enqueue requires --id and --agent");
+    if (!id || !role) {
+      console.error("enqueue requires --id and --role");
       process.exit(1);
     }
     if (!priorities.includes(priority)) {
@@ -289,7 +316,7 @@ switch (mode) {
       console.error(`invalid --policy "${policy}"; expected one of: ${policies.join(", ")}`);
       process.exit(1);
     }
-    const ownerError = validateOwnerAgent(agent);
+    const ownerError = validateOwnerRole(role);
     if (ownerError) {
       console.error(ownerError);
       process.exit(1);
@@ -298,14 +325,14 @@ switch (mode) {
       id,
       priority,
       execution_policy: policy,
-      owner_agent: agent,
+      owner_role: role,
       status: "pending",
       requires_approval: false,
       ...(description && { description }),
     };
     state.items.push(item);
     state.items.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
-    console.log(`[autonomy-state] enqueued id=${id} agent=${agent} priority=${priority}`);
+    console.log(`[autonomy-state] enqueued id=${id} role=${role} priority=${priority}`);
     break;
   }
 
@@ -323,15 +350,24 @@ switch (mode) {
       console.error("[autonomy-state] cannot activate: queue is empty");
       process.exit(1);
     }
-    const ownerError = validateOwnerAgent(next.owner_agent);
+    const role = getOwnerRole(next);
+    if (!role) {
+      console.error(`[autonomy-state] cannot activate: item ${next.id} has no owner_role`);
+      process.exit(1);
+    }
+    const ownerError = validateOwnerRole(role);
     if (ownerError) {
       console.error(ownerError);
       process.exit(1);
     }
+    if (!next.owner_role) {
+      next.owner_role = role;
+      delete next.owner_agent;
+    }
     next.status = "running";
     state.active = next;
     console.log(
-      `[autonomy-state] activated id=${state.active.id} agent=${state.active.owner_agent}`,
+      `[autonomy-state] activated id=${state.active.id} role=${state.active.owner_role}`,
     );
     break;
   }

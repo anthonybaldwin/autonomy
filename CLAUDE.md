@@ -20,13 +20,13 @@ These commands are prompt adapters. They do not define agents, roles, or queue
 policy. Every command must follow `AGENTS.md`, `agents/roster.yaml`,
 `agents/queue-policy.md`, and `agents/handoffs/README.md`.
 
-## Runtime Rule
+## Runtime Tool Vs Owner Role
 
-Claude Code is the runtime. The active queue item's `owner_agent` is the roster
+Claude Code is the runtime. The active queue item's `owner_role` is the roster
 role being executed.
 
 Do not enqueue `claude`, `claude-code`, `codex`, `gemini`, `gemini-cli`,
-`worker`, or `verifier` as `owner_agent` unless the local roster explicitly
+`worker`, or `verifier` as `owner_role` unless the local roster explicitly
 defines that id as a role.
 
 Every Claude handoff must include `Runtime: Claude Code`.

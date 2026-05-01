@@ -12,17 +12,20 @@
 1. `id`
 2. `priority` (`high|normal|low`)
 3. `execution_policy` (`run-now|run-after-current-step|run-next-turn`)
-4. `owner_agent` (must be a role id from `agents/roster.yaml`)
+4. `owner_role` (must be a role id from `agents/roster.yaml`)
 5. `status` (`pending|running|blocked|done|failed|cancelled`)
 6. `requires_approval` (bool)
 
 ## Role ownership
-1. `owner_agent` is a project role, not the runtime that happens to execute the work.
+1. `owner_role` is a project role, not the runtime that happens to execute the work.
 2. Codex, Claude, Gemini, worker, and verifier are runtime names or execution modes. They are not valid owners unless the roster explicitly defines them as role ids.
 3. Common invalid owners include `codex`, `claude`, `claude-code`, `gemini`, `gemini-cli`, `worker`, and `verifier`.
-4. Supervisors must choose the next `owner_agent` from `agents/roster.yaml`.
+4. Supervisors must choose the next `owner_role` from `agents/roster.yaml`.
 5. Workers must execute the active item's roster role and include both `Role` and `Runtime` in the handoff.
 6. If queue or roster state looks inconsistent, run `bun run autonomy:doctor` and fix the reported issue.
+
+Legacy state files may contain `owner_agent`; read it as an alias for
+`owner_role`, but write `owner_role` for new queue items.
 
 ## Rules
 1. High-priority items preempt normal/low unless an in-flight step is marked atomic.

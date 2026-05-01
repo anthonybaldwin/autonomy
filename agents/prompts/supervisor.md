@@ -15,7 +15,7 @@ Tasks:
 2. Assign exactly one owner role from `agents/roster.yaml`.
 3. Emit explicit acceptance criteria.
 4. Emit stop conditions and rollback trigger.
-5. Do not use runtime names (`codex`, `claude`, `claude-code`, `gemini`, `gemini-cli`, `worker`, `verifier`) as `owner_agent` unless the roster explicitly defines them.
+5. Do not use runtime names (`codex`, `claude`, `claude-code`, `gemini`, `gemini-cli`, `worker`, `verifier`) as `owner_role` unless the roster explicitly defines them.
 
 Output format:
 1. `selected_role`

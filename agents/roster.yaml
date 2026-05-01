@@ -1,7 +1,8 @@
 version: 1
 
 roster_policy:
-  owner_agent_is_role: true
+  owner_role_is_role: true
+  legacy_owner_agent_is_alias: true
   runtime_names_are_not_roles:
     - codex
     - claude
@@ -11,7 +12,8 @@ roster_policy:
     - worker
     - verifier
   instructions:
-    - Queue items must use one of the role ids below as owner_agent.
+    - Queue items must use one of the role ids below as owner_role.
+    - owner_agent is a legacy alias for old queue state; new items should use owner_role.
     - Codex, Claude, Gemini, and other tools are runtimes that may execute any role.
     - Do not enqueue runtime names unless this roster explicitly defines them as role ids.
     - When a role does not fit, add or edit a role before enqueueing work.
@@ -54,7 +56,7 @@ roles:
     handoff_focus:
       - installed files
       - setup gaps
-      - first recommended owner_agent
+      - first recommended owner_role
 
   - id: planning-roadmap
     title: Planning and Roadmap
