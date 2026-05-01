@@ -2,7 +2,7 @@
 
 ## Required read order
 1. Project-level agent instructions (`AGENTS.md`).
-2. The applicable runtime overlay, such as `CLAUDE.md` or `GEMINI.md`.
+2. The applicable runtime overlay, such as `CLAUDE.md`.
 3. `agents/roster.yaml`.
 4. `agents/queue-policy.md`.
 5. Latest handoff in `agents/handoffs/`, when present.
@@ -18,7 +18,7 @@
 
 ## Role ownership
 1. `owner_role` is a project role, not the runtime that happens to execute the work.
-2. Codex, Claude, Gemini, worker, and verifier are runtime names or execution modes. They are not valid owners unless the roster explicitly defines them as role ids.
+2. Codex, Claude, worker, and verifier are runtime names or execution modes. They are not valid owners unless the roster explicitly defines them as role ids.
 3. Common invalid owners include `codex`, `claude`, `claude-code`, `gemini`, `gemini-cli`, `worker`, and `verifier`.
 4. Supervisors must choose the next `owner_role` from `agents/roster.yaml`.
 5. Workers must execute the active item's roster role and include both `Role` and `Runtime` in the handoff.

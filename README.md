@@ -1,8 +1,8 @@
 # autonomy
 
 A small, tool-agnostic queue and handoff kit for AI coding agents. It lets
-Claude Code, Gemini CLI, Codex, or another shell-capable runtime work through
-bounded queue items without treating runtime names as project roles.
+Codex, Claude Code, or another shell-capable runtime work through bounded queue
+items without treating runtime names as project roles.
 
 The kit is just files:
 
@@ -11,7 +11,7 @@ The kit is just files:
 - `agents/queue-state.json` for local runtime queue state.
 - `scripts/autonomy-state.ts` for queue commands.
 - `.agents/skills/autonomy-queue/SKILL.md` for the canonical reusable skill.
-- Optional provider skill wrappers and slash-command adapters.
+- Optional Claude skill wrapper and slash-command adapters.
 
 No daemon, service, or SDK is required.
 
@@ -42,7 +42,6 @@ Drop these files into any repo:
 4. The `autonomy:*` scripts from `package.json`
 5. `.agents/skills/`
 6. Optional for Claude Code: `CLAUDE.md`, `.claude/skills/`, and `.claude/commands/`
-7. Optional for Gemini CLI: `GEMINI.md`, `.gemini/skills/`, and `.gemini/commands/`
 
 If the target repo already has agent instruction files, merge the guidance
 instead of replacing project-specific rules.
@@ -57,10 +56,9 @@ gitignored. The first state-changing queue command creates it from
 
 1. Read `AGENTS.md`.
 2. Edit `agents/roster.yaml` so its role ids match the target project.
-3. Merge `CLAUDE.md` or `GEMINI.md` only when that runtime is used.
+3. Merge `CLAUDE.md` only when Claude Code is used.
 4. Keep `.claude/skills/` and `.claude/commands/` only for Claude Code.
-5. Keep `.gemini/skills/` and `.gemini/commands/` only for Gemini CLI.
-6. Run `bun run autonomy:check` to confirm the queue is runnable.
+5. Run `bun run autonomy:check` to confirm the queue is runnable.
 
 `bun run autonomy:doctor` is for troubleshooting a broken or suspicious setup.
 It is not the first setup step.
@@ -97,7 +95,7 @@ as roles.
 Any runtime with shell and filesystem access can drive the loop:
 
 1. Read `AGENTS.md`.
-2. Read the applicable overlay, such as `CLAUDE.md` or `GEMINI.md`.
+2. Read the applicable overlay, such as `CLAUDE.md`.
 3. Read `agents/roster.yaml`.
 4. Read `agents/queue-policy.md`.
 5. Read the latest handoff in `agents/handoffs/`, when present.
@@ -137,7 +135,7 @@ The roster does not install agents. It defines project roles.
 | Term | Example | Meaning |
 |---|---|---|
 | Role | `backend-api`, `testing-qa`, `docs-release-ops` | The ownership lane selected for a queue item. |
-| Runtime | Codex, Claude Code, Gemini CLI | The tool executing the selected role. |
+| Runtime | Codex, Claude Code | The tool executing the selected role. |
 
 There do not need to be matching files such as `agents/roles/backend-api.md`.
 `agents/roster.yaml` is the definition source unless a project deliberately adds
@@ -166,12 +164,11 @@ The reusable autonomy workflow lives in one Agent Skill:
 That is the canonical source for bootstrap, next-item, stop, and doctor
 behavior.
 
-Provider-specific skill wrappers exist only for runtimes that discover skills in
-their own directories. They point back to the canonical skill:
+The Claude-specific skill wrapper exists only because Claude Code discovers
+project skills in its own directory. It points back to the canonical skill:
 
 ```text
 .claude/skills/autonomy-queue/SKILL.md
-.gemini/skills/autonomy-queue/SKILL.md
 ```
 
 Slash commands are optional aliases that invoke the skill. They do not install
@@ -181,18 +178,17 @@ separate agents and should not duplicate the workflow.
 |---|---|---|
 | Codex | `.agents/skills/autonomy-queue/SKILL.md` | none |
 | Claude Code | `.claude/skills/autonomy-queue/SKILL.md` | `/bootstrap`, `/next-agent`, `/stop-autonomy` |
-| Gemini CLI | `.gemini/skills/autonomy-queue/SKILL.md` | `/bootstrap`, `/next-agent`, `/stop-autonomy` |
 
-Codex custom prompts are not used here because current Codex docs mark them
-deprecated and Codex has repo-scoped skills. Use `$autonomy-queue` or ask Codex
-to use the autonomy queue skill.
+Codex custom prompts are not used here. Codex has repo-scoped skills, so use
+`$autonomy-queue` or ask Codex to use the autonomy queue skill.
+
+Gemini CLI is not shipped as a provider-specific target in this template. Its
+current docs support workspace Agent Skills from `.agents/skills/`, so a future
+Gemini user can still use the canonical skill without adding `.gemini/*` files.
 
 MCP prompts are a separate option: they require an MCP server that exposes
 prompt templates. This template keeps the default install file-only and does not
 ship an MCP server.
-
-Gemini CLI's command aliases also inject the Gemini skill wrapper, so they still
-work on setups where skill auto-discovery is not available or not yet loaded.
 
 ## Stop And Resume
 
@@ -211,7 +207,6 @@ interruption, use the current runtime's own cancel or interrupt control.
 ```text
 AGENTS.md                 universal runtime contract
 CLAUDE.md                 Claude Code overlay
-GEMINI.md                 Gemini CLI overlay
 package.json              autonomy:* script aliases
 
 .agents/skills/
@@ -226,15 +221,6 @@ package.json              autonomy:* script aliases
   bootstrap.md
   next-agent.md
   stop-autonomy.md
-
-.gemini/skills/
-  autonomy-queue/
-    SKILL.md              Gemini project-skill wrapper
-
-.gemini/commands/         optional Gemini CLI project custom commands
-  bootstrap.toml
-  next-agent.toml
-  stop-autonomy.toml
 
 agents/
   README.md
@@ -257,9 +243,6 @@ scripts/
 
 - Claude Code: `CLAUDE.md` is an overlay only. The project skill wrapper is in
   `.claude/skills/`; slash commands are aliases for the skill.
-- Gemini CLI: `GEMINI.md` is an overlay only. The project skill wrapper is in
-  `.gemini/skills/`; slash commands are aliases for the skill. Run
-  `/commands reload` after editing command files.
 - Codex: `AGENTS.md` is the durable project instruction file, and the repo skill
   lives in `.agents/skills/`.
 

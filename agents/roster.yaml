@@ -14,7 +14,7 @@ roster_policy:
   instructions:
     - Queue items must use one of the role ids below as owner_role.
     - owner_agent is a legacy alias for old queue state; new items should use owner_role.
-    - Codex, Claude, Gemini, and other tools are runtimes that may execute any role.
+    - Codex, Claude, and other tools are runtimes that may execute any role.
     - Do not enqueue runtime names unless this roster explicitly defines them as role ids.
     - When a role does not fit, add or edit a role before enqueueing work.
 
@@ -23,7 +23,7 @@ supervisor:
   mission: Select bounded work, choose the next roster role, and enforce queue gates.
   reads:
     - AGENTS.md
-    - applicable runtime overlay such as CLAUDE.md or GEMINI.md
+    - applicable runtime overlay such as CLAUDE.md
     - agents/roster.yaml
     - agents/queue-policy.md
     - agents/queue-state.json
@@ -42,12 +42,9 @@ roles:
     owns:
       - AGENTS.md
       - CLAUDE.md
-      - GEMINI.md
       - .claude/commands/
-      - .gemini/commands/
       - .agents/skills/
       - .claude/skills/
-      - .gemini/skills/
       - package scripts
       - initial queue seed
       - setup docs

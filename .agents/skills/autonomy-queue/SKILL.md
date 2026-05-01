@@ -16,7 +16,7 @@ session, stop and read it before taking any action from this skill.
 Follow these files in order:
 
 1. `AGENTS.md`
-2. The applicable runtime overlay, such as `CLAUDE.md` or `GEMINI.md`
+2. The applicable runtime overlay, such as `CLAUDE.md`
 3. `agents/roster.yaml`
 4. `agents/queue-policy.md`
 5. The latest handoff note in `agents/handoffs/`, when present
@@ -24,8 +24,7 @@ Follow these files in order:
 
 ## Terminology
 
-- Runtime: the tool executing the work, such as Codex, Claude Code, or Gemini
-  CLI.
+- Runtime: the tool executing the work, such as Codex or Claude Code.
 - Owner role: the roster role that owns the queue item.
 - Queue items must use `owner_role`, not runtime names.
 

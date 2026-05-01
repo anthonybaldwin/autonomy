@@ -3,10 +3,10 @@
 This file is the universal contract for any shell-capable coding agent working
 with this repository or with a project that has installed this autonomy kit.
 
-Tool-specific files such as `CLAUDE.md` and `GEMINI.md` may add runtime details,
-but they must not replace this file. If a runtime-specific file conflicts with
-this file, follow `AGENTS.md` unless the conflict is strictly about that
-runtime's own command format or configuration.
+Tool-specific files such as `CLAUDE.md` may add runtime details, but they must
+not replace this file. If a runtime-specific file conflicts with this file,
+follow `AGENTS.md` unless the conflict is strictly about that runtime's own
+command format or configuration.
 
 ## Autonomy Is Opt-In
 
@@ -20,8 +20,7 @@ For normal repository work, treat this kit as inert project tooling.
 Before claiming queued work:
 
 1. Read this `AGENTS.md`.
-2. Read any runtime-specific overlay that applies to you, such as `CLAUDE.md` or
-   `GEMINI.md`.
+2. Read any runtime-specific overlay that applies to you, such as `CLAUDE.md`.
 3. Read `agents/roster.yaml`.
 4. Read `agents/queue-policy.md`.
 5. Read the latest handoff note in `agents/handoffs/`, when present.
@@ -36,15 +35,15 @@ the roster or queue. Do not silently reinterpret it as the current runtime.
 ## Roster Roles Vs Runtime Tools
 
 `agents/roster.yaml` is the tracked role catalog for the project. It is not a
-runtime registry and it does not install separate Claude, Codex, Gemini, worker,
-or verifier agents.
+runtime registry and it does not install separate Claude, Codex, worker, or
+verifier agents.
 
 `owner_role` must be a roster role id, such as `backend-api`, `frontend-ui`, or
 `testing-qa`.
 
-The runtime is the tool executing that role: Codex, Claude Code, Gemini CLI, or
-another shell-capable agent. Runtime names are not valid `owner_role` values
-unless the local roster explicitly defines them as roles.
+The runtime is the tool executing that role: Codex, Claude Code, or another
+shell-capable agent. Runtime names are not valid `owner_role` values unless the
+local roster explicitly defines them as roles.
 
 Common invalid owners are `codex`, `claude`, `claude-code`, `gemini`,
 `gemini-cli`, `worker`, and `verifier`.
@@ -61,8 +60,7 @@ while wearing that role.
 Every handoff must record both:
 
 - `Role`: the roster id that owned the queue item.
-- `Runtime`: the tool that executed the work, such as Codex, Claude Code, or
-  Gemini CLI.
+- `Runtime`: the tool that executed the work, such as Codex or Claude Code.
 
 ## Queue Rules
 
@@ -104,11 +102,10 @@ When executing work:
 The reusable autonomy workflow lives in the `autonomy-queue` Agent Skill.
 
 The canonical skill source is `.agents/skills/autonomy-queue/SKILL.md`.
-Provider-specific skill wrappers exist only where a runtime needs a different
-discovery directory:
+The only provider-specific skill wrapper shipped by default is for Claude Code,
+because Claude discovers project skills in `.claude/skills/`:
 
 - `.claude/skills/autonomy-queue/SKILL.md`
-- `.gemini/skills/autonomy-queue/SKILL.md`
 
 Provider slash commands are optional runtime adapters that invoke the skill.
 They are not the source of truth.
@@ -117,13 +114,12 @@ The source of truth is this file plus `agents/roster.yaml`,
 `agents/queue-policy.md`, `agents/handoffs/README.md`, and
 `.agents/skills/autonomy-queue/SKILL.md`.
 
-Current template command support:
+Current template support:
 
 | Runtime | Project skill files | Command aliases |
 |---|---|---|
 | Codex | `.agents/skills/autonomy-queue/SKILL.md` | none in this template |
 | Claude Code | `.claude/skills/autonomy-queue/SKILL.md` | `.claude/commands/*.md` |
-| Gemini CLI | `.gemini/skills/autonomy-queue/SKILL.md` | `.gemini/commands/*.toml` |
 
 If a slash command exists, it must invoke the `autonomy-queue` skill.
 

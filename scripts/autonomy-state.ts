@@ -65,10 +65,6 @@ const skillPaths = [
     label: "Claude Code project skill wrapper",
     path: resolve(repoRoot, ".claude", "skills", "autonomy-queue", "SKILL.md"),
   },
-  {
-    label: "Gemini CLI project skill wrapper",
-    path: resolve(repoRoot, ".gemini", "skills", "autonomy-queue", "SKILL.md"),
-  },
 ];
 const queueExistedAtStart = existsSync(queuePath);
 
@@ -149,7 +145,7 @@ function validateOwnerRole(role: string): string | null {
   }
 
   const hint = runtimeNames.has(role)
-    ? " Codex/Claude/Gemini/worker/verifier are runtimes, not owner roles, unless the roster explicitly defines them."
+    ? " Runtime names and execution modes are not owner roles, unless the roster explicitly defines them."
     : "";
   return `Unknown owner_role "${role}". Use one of: ${rosterIds.join(", ")}.${hint}`;
 }

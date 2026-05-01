@@ -9,7 +9,7 @@ Write one handoff file per completed agent run.
 ## Required sections
 1. Header metadata:
    - `Role`: the active queue item's roster `owner_role`.
-   - `Runtime`: the tool that executed the work, such as Codex, Claude Code, or Gemini CLI.
+   - `Runtime`: the tool that executed the work, such as Codex or Claude Code.
    - `Queue item`: active item id.
    - `Status`: `done`, `failed`, `blocked`, or `cancelled`.
 2. Scope and constraints handled.
