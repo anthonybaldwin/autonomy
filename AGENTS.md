@@ -99,13 +99,18 @@ When executing work:
 4. Leave unrelated files alone.
 5. Run the narrowest useful checks before completion.
 
-## Slash Commands
+## Prompt Templates And Command Adapters
 
-Slash commands are runtime adapters for repeated prompts. They are not the
-source of truth.
+Reusable autonomy prompts live in `agents/prompts/commands/*.md`. These prompt
+templates are the source of truth for `/bootstrap`, `/next-agent`, and
+`/stop-autonomy` behavior.
+
+Provider slash commands are runtime adapters that load those prompt templates.
+They are not the source of truth.
 
 The source of truth is this file plus `agents/roster.yaml`,
-`agents/queue-policy.md`, and `agents/handoffs/README.md`.
+`agents/queue-policy.md`, `agents/handoffs/README.md`, and the relevant
+`agents/prompts/commands/*.md` template.
 
 Current template command support:
 
@@ -113,10 +118,10 @@ Current template command support:
 |---|---|---|
 | Claude Code | `.claude/commands/*.md` | Project slash commands such as `/bootstrap`, `/next-agent`, and `/stop-autonomy`. |
 | Gemini CLI | `.gemini/commands/*.toml` | Project custom commands such as `/bootstrap`, `/next-agent`, and `/stop-autonomy`. |
-| Codex | none in this template | Codex reads `AGENTS.md`; use normal prompts or `bun run autonomy:*` commands. Do not assume repo-local custom slash commands are installed for Codex. |
+| Codex | none in this template | Codex reads `AGENTS.md`; point Codex at `agents/prompts/commands/*.md` or use `bun run autonomy:*`. Do not assume repo-local custom slash commands are installed for Codex. |
 
 If a slash command exists, it must instruct the runtime to read `AGENTS.md`
-first and then follow the same queue/roster contract as every other runtime.
+first and then load the matching prompt template.
 
 ## Handoff Header
 

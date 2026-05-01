@@ -20,7 +20,8 @@ After editing `.gemini/commands/*.toml`, run `/commands reload` inside Gemini
 CLI or restart the session so Gemini sees the updated command definitions.
 
 These commands are prompt adapters. They do not define agents, roles, or queue
-policy. Every command must follow `AGENTS.md`, `agents/roster.yaml`,
+policy. Every command must load the matching template from
+`agents/prompts/commands/` and follow `AGENTS.md`, `agents/roster.yaml`,
 `agents/queue-policy.md`, and `agents/handoffs/README.md`.
 
 ## Runtime Tool Vs Owner Role

@@ -10,6 +10,7 @@ The kit is just files:
 - `agents/roster.yaml` for project role ownership.
 - `agents/queue-state.json` for local runtime queue state.
 - `scripts/autonomy-state.ts` for queue commands.
+- `agents/prompts/commands/*.md` for reusable prompt templates.
 - Optional Claude and Gemini slash-command adapters.
 
 No daemon, service, or SDK is required.
@@ -153,19 +154,27 @@ Queue item: task-001
 Status: done
 ```
 
-## Slash Commands
+## Prompt Templates And Slash Adapters
 
-Slash commands are adapters for repeated prompts. They are not the source of
-truth, and they do not install separate agents.
+Reusable autonomy prompts live in `agents/prompts/commands/*.md`. Those files
+are the source of truth for bootstrap, next-item, and stop behavior.
+
+Slash commands are only provider-specific adapters for those repeated prompts.
+They do not install separate agents.
 
 | Runtime | Project command support | Included files |
 |---|---|---|
 | Claude Code | Yes, Markdown commands in `.claude/commands/*.md`. | `/bootstrap`, `/next-agent`, `/stop-autonomy` |
 | Gemini CLI | Yes, TOML commands in `.gemini/commands/*.toml`. | `/bootstrap`, `/next-agent`, `/stop-autonomy` |
-| Codex | No project command files in this template. | Use `AGENTS.md`, normal prompts, and `bun run autonomy:*`. |
+| Codex | No project command files in this template. | Point Codex at `agents/prompts/commands/*.md`, use `AGENTS.md`, or run `bun run autonomy:*`. |
 
-Codex has built-in slash commands for its own session controls, but this
-template does not add repo-local Codex command files.
+Codex custom prompts are not used here because current Codex docs mark them
+deprecated and they are not repo-local. Use Codex skills for reusable Codex-only
+behavior.
+
+MCP prompts are a separate option: they require an MCP server that exposes
+prompt templates. This template keeps the default install file-only and does not
+ship an MCP server.
 
 ## Stop And Resume
 
@@ -205,6 +214,8 @@ agents/
   handoffs/
     README.md
   prompts/
+    README.md
+    commands/             canonical reusable prompt templates
     supervisor.md
     worker-template.md
     verifier.md

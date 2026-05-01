@@ -45,6 +45,7 @@ roles:
       - GEMINI.md
       - .claude/commands/
       - .gemini/commands/
+      - agents/prompts/commands/
       - package scripts
       - initial queue seed
       - setup docs

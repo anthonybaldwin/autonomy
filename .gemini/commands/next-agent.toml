@@ -1,30 +1,9 @@
 description = "Claim and execute one autonomy queue item using the selected roster role."
 
 prompt = """
-You are running the project /next-agent command in Gemini CLI.
+@{agents/prompts/commands/next-agent.md}
 
-Hard requirement: read AGENTS.md first. If you have not read it in this
-session, stop and read it before taking any action.
-
-Then read GEMINI.md, agents/roster.yaml, agents/queue-policy.md, the latest
-handoff note in agents/handoffs/ when present, and the current queue state.
-
-Task:
-1. Run bun run autonomy:check before claiming work.
-2. Run bun run autonomy:activate to claim one item.
-3. Execute only the active item's bounded scope.
-4. Treat owner_role as a roster role id, not as the runtime name.
-5. Do not use runtime names such as gemini, gemini-cli, claude, claude-code,
-   codex, worker, or verifier as owner_role unless the roster explicitly
-   defines them.
-6. Run the narrowest useful validation commands for the touched files.
-7. Complete the item with bun run autonomy:complete only after the work is
-   genuinely done.
-8. Write a handoff note that includes Role, Runtime: Gemini CLI, Queue item, and
-   Status.
-9. Enqueue at most one or two concrete follow-ups, and only with roster role ids.
-10. Stop after this one queue item unless the user explicitly asked for a longer
-    loop.
+Runtime name for handoffs: Gemini CLI.
 
 User arguments: {{args}}
 """
