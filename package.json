@@ -1,7 +1,9 @@
 {
   "name": "autonomy",
   "private": true,
-  "packageManager": "bun@1.3.13",
+  "engines": {
+    "bun": ">=1.0.0"
+  },
   "scripts": {
     "autonomy:stop": "bun scripts/autonomy-state.ts stop",
     "autonomy:stop:clear": "bun scripts/autonomy-state.ts stop --clear",
