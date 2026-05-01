@@ -1,7 +1,10 @@
 description = "Seed the autonomy queue from a project plan using roster role ids."
 
 prompt = """
-@{agents/prompts/commands/bootstrap.md}
+Use the `autonomy-queue` skill with operation `Bootstrap`.
+
+If Gemini CLI does not auto-load the project skill, read:
+@{.agents/skills/autonomy-queue/SKILL.md}
 
 Runtime name for handoffs: Gemini CLI.
 

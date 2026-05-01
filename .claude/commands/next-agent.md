@@ -5,8 +5,7 @@ argument-hint: "[optional focus]"
 
 # /next-agent
 
-Load and follow the canonical prompt template at
-@agents/prompts/commands/next-agent.md.
+Invoke the `autonomy-queue` skill with operation `Next`.
 
 Runtime name for handoffs: `Claude Code`.
 

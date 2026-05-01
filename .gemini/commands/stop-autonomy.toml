@@ -1,7 +1,10 @@
 description = "Pause future autonomy queue claims."
 
 prompt = """
-@{agents/prompts/commands/stop-autonomy.md}
+Use the `autonomy-queue` skill with operation `Stop`.
+
+If Gemini CLI does not auto-load the project skill, read:
+@{.agents/skills/autonomy-queue/SKILL.md}
 
 Runtime name: Gemini CLI.
 

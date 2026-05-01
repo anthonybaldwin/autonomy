@@ -56,6 +56,20 @@ const queuePath = resolve(repoRoot, "agents", "queue-state.json");
 const rosterPath = resolve(repoRoot, "agents", "roster.yaml");
 const gitignorePath = resolve(repoRoot, ".gitignore");
 const packagePath = resolve(repoRoot, "package.json");
+const skillPaths = [
+  {
+    label: "canonical Codex/repo skill",
+    path: resolve(repoRoot, ".agents", "skills", "autonomy-queue", "SKILL.md"),
+  },
+  {
+    label: "Claude Code project skill wrapper",
+    path: resolve(repoRoot, ".claude", "skills", "autonomy-queue", "SKILL.md"),
+  },
+  {
+    label: "Gemini CLI project skill wrapper",
+    path: resolve(repoRoot, ".gemini", "skills", "autonomy-queue", "SKILL.md"),
+  },
+];
 const queueExistedAtStart = existsSync(queuePath);
 
 let raw: string;
@@ -211,6 +225,15 @@ switch (mode) {
       printDoctorResult("ok", "found agents/queue-state.json");
     } else {
       printDoctorResult("ok", "agents/queue-state.json is absent; first state-changing command will create it");
+    }
+
+    for (const skill of skillPaths) {
+      if (existsSync(skill.path)) {
+        printDoctorResult("ok", `found ${skill.label}`);
+      } else {
+        printDoctorResult("warn", `missing ${skill.label}`);
+        warnings += 1;
+      }
     }
 
     const missingOwnerRoles = allQueueItems().filter((item) => !getOwnerRole(item));

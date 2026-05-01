@@ -12,7 +12,7 @@ item.
 2. `queue-policy.md` - queue semantics, owner role rules, and kill-switch behavior.
 3. `queue-state.example.json` - seed state for local runtime queue state.
 4. `handoffs/README.md` - handoff note contract and naming policy.
-5. `prompts/` - prompt templates and prompt contracts.
+5. `prompts/` - supervisor, worker, and verifier prompt contracts.
 
 ## Runtime notes
 1. Runtime queue state is stored in `queue-state.json` (gitignored).
@@ -28,7 +28,10 @@ roles such as `backend-api`, `frontend-ui`, and `testing-qa`.
 If a project later needs longer role instructions, add explicit files and point
 to them from `roster.yaml`; do not assume they exist by naming convention.
 
-## Command prompt templates
+## Autonomy skill
 
-Reusable autonomy prompts live in `prompts/commands/*.md`. Claude and Gemini
-command files should load those templates instead of duplicating the workflow.
+The reusable autonomy workflow lives in `.agents/skills/autonomy-queue/SKILL.md`.
+
+Claude and Gemini provider skill wrappers live in their runtime-specific
+directories and point back to the canonical skill. Slash commands are optional
+aliases that invoke the skill.

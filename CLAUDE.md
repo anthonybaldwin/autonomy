@@ -16,10 +16,9 @@ Project slash commands live in `.claude/commands/*.md`.
 - `/next-agent` claims and runs one queued item.
 - `/stop-autonomy` pauses future queue claims.
 
-These commands are prompt adapters. They do not define agents, roles, or queue
-policy. Every command must load the matching template from
-`agents/prompts/commands/` and follow `AGENTS.md`, `agents/roster.yaml`,
-`agents/queue-policy.md`, and `agents/handoffs/README.md`.
+The `autonomy-queue` project skill lives in `.claude/skills/autonomy-queue/`.
+The slash commands are aliases that invoke that skill. They do not define
+agents, roles, or queue policy.
 
 ## Runtime Tool Vs Owner Role
 

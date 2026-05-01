@@ -1,7 +1,10 @@
 description = "Claim and execute one autonomy queue item using the selected roster role."
 
 prompt = """
-@{agents/prompts/commands/next-agent.md}
+Use the `autonomy-queue` skill with operation `Next`.
+
+If Gemini CLI does not auto-load the project skill, read:
+@{.agents/skills/autonomy-queue/SKILL.md}
 
 Runtime name for handoffs: Gemini CLI.
 

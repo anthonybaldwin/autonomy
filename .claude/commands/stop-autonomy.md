@@ -5,8 +5,7 @@ argument-hint: "[--clear]"
 
 # /stop-autonomy
 
-Load and follow the canonical prompt template at
-@agents/prompts/commands/stop-autonomy.md.
+Invoke the `autonomy-queue` skill with operation `Stop`.
 
 Runtime name: `Claude Code`.
 

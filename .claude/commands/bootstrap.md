@@ -5,8 +5,7 @@ argument-hint: "[optional plan source]"
 
 # /bootstrap
 
-Load and follow the canonical prompt template at
-@agents/prompts/commands/bootstrap.md.
+Invoke the `autonomy-queue` skill with operation `Bootstrap`.
 
 Runtime name for handoffs: `Claude Code`.
 

@@ -99,29 +99,33 @@ When executing work:
 4. Leave unrelated files alone.
 5. Run the narrowest useful checks before completion.
 
-## Prompt Templates And Command Adapters
+## Agent Skill And Command Adapters
 
-Reusable autonomy prompts live in `agents/prompts/commands/*.md`. These prompt
-templates are the source of truth for `/bootstrap`, `/next-agent`, and
-`/stop-autonomy` behavior.
+The reusable autonomy workflow lives in the `autonomy-queue` Agent Skill.
 
-Provider slash commands are runtime adapters that load those prompt templates.
+The canonical skill source is `.agents/skills/autonomy-queue/SKILL.md`.
+Provider-specific skill wrappers exist only where a runtime needs a different
+discovery directory:
+
+- `.claude/skills/autonomy-queue/SKILL.md`
+- `.gemini/skills/autonomy-queue/SKILL.md`
+
+Provider slash commands are optional runtime adapters that invoke the skill.
 They are not the source of truth.
 
 The source of truth is this file plus `agents/roster.yaml`,
-`agents/queue-policy.md`, `agents/handoffs/README.md`, and the relevant
-`agents/prompts/commands/*.md` template.
+`agents/queue-policy.md`, `agents/handoffs/README.md`, and
+`.agents/skills/autonomy-queue/SKILL.md`.
 
 Current template command support:
 
-| Runtime | Project command files | Notes |
+| Runtime | Project skill files | Command aliases |
 |---|---|---|
-| Claude Code | `.claude/commands/*.md` | Project slash commands such as `/bootstrap`, `/next-agent`, and `/stop-autonomy`. |
-| Gemini CLI | `.gemini/commands/*.toml` | Project custom commands such as `/bootstrap`, `/next-agent`, and `/stop-autonomy`. |
-| Codex | none in this template | Codex reads `AGENTS.md`; point Codex at `agents/prompts/commands/*.md` or use `bun run autonomy:*`. Do not assume repo-local custom slash commands are installed for Codex. |
+| Codex | `.agents/skills/autonomy-queue/SKILL.md` | none in this template |
+| Claude Code | `.claude/skills/autonomy-queue/SKILL.md` | `.claude/commands/*.md` |
+| Gemini CLI | `.gemini/skills/autonomy-queue/SKILL.md` | `.gemini/commands/*.toml` |
 
-If a slash command exists, it must instruct the runtime to read `AGENTS.md`
-first and then load the matching prompt template.
+If a slash command exists, it must invoke the `autonomy-queue` skill.
 
 ## Handoff Header
 

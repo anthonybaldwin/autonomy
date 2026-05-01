@@ -1,26 +1,11 @@
-# Prompt Templates
+# Prompt Contracts
 
-This folder contains reusable prompt contracts for the autonomy kit.
+This folder contains prompt contracts for supervisor, worker, and verifier runs.
 
-## Command prompt templates
+The reusable autonomy workflow itself lives in the `autonomy-queue` Agent Skill:
 
-`commands/*.md` files are the provider-neutral source of truth for reusable
-autonomy prompts:
+- `.agents/skills/autonomy-queue/SKILL.md` - canonical skill source.
+- `.claude/skills/autonomy-queue/SKILL.md` - Claude Code project-skill wrapper.
+- `.gemini/skills/autonomy-queue/SKILL.md` - Gemini CLI project-skill wrapper.
 
-- `commands/bootstrap.md`
-- `commands/next-agent.md`
-- `commands/stop-autonomy.md`
-
-Provider command files should be thin adapters that load these prompt templates.
-Do not duplicate the full workflow in `.claude/commands/` or
-`.gemini/commands/` unless a provider cannot load the shared file.
-
-## Runtime support
-
-- Claude Code loads project commands from `.claude/commands/*.md`.
-- Gemini CLI loads project commands from `.gemini/commands/*.toml`.
-- Codex should be pointed at these prompt templates directly or use Codex
-  skills; Codex custom prompts are not project-local and are deprecated in the
-  current official docs.
-- MCP prompts are a separate mechanism that requires an MCP server. This
-  template does not ship an MCP server.
+Provider slash commands, when present, are only aliases that invoke the skill.
